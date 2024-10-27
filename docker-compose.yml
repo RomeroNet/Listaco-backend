@@ -3,9 +3,11 @@ services:
     container_name: laravel-web
     build:
       context: .
-      dockerfile: docker/prod/nginx/Dockerfile
+      dockerfile: docker/dev/nginx/Dockerfile
     ports:
       - "8080:80"
+    volumes:
+      - ./:/app
     user: "1000:1000"
     links:
       - php
@@ -14,8 +16,24 @@ services:
     container_name: laravel-php
     build:
       context: .
-      dockerfile: docker/prod/php/Dockerfile
+      dockerfile: docker/dev/php/Dockerfile
+    volumes:
+      - ./:/app
     user: "1000:1000"
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=0
+      - APP_ENV=local
+      - APP_DEBUG=1
+
+  db:
+    container_name: laravel-db
+    image: mysql:9.1.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: listaco
+      MYSQL_ROOT_PASSWORD: dev
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  db:
