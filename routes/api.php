@@ -1,6 +1,7 @@
 <?php
 
 use App\Infrastructure\Http\Controllers\Index;
+use App\Infrastructure\Http\Controllers\ListingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,4 +17,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/', [Index::class, 'get']);
+
+    Route::prefix('listing')->group(function () {
+        Route::post('/', [ListingController::class, 'post']);
+    });
 });

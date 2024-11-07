@@ -2,12 +2,14 @@
 
 namespace App\Domain\Listing;
 
-readonly class Listing
+use Illuminate\Contracts\Support\Arrayable;
+
+readonly class Listing implements Arrayable
 {
     public function __construct(
-        private readonly string $uuid,
-        private readonly string $title,
-        private readonly ?string $description,
+        private string $uuid,
+        private string $title,
+        private ?string $description,
     ) {
     }
 
@@ -24,5 +26,14 @@ readonly class Listing
     public function description(): ?string
     {
         return $this->description;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->uuid(),
+            'title' => $this->title(),
+            'description' => $this->description(),
+        ];
     }
 }

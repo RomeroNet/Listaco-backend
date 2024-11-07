@@ -2,7 +2,9 @@
 
 namespace App\Domain\Item;
 
-readonly class Item
+use Illuminate\Contracts\Support\Arrayable;
+
+readonly class Item implements Arrayable
 {
     public function __construct(
         private readonly string $uuid,
@@ -30,5 +32,15 @@ readonly class Item
     public function listingUuid(): string
     {
         return $this->listingUuid;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->uuid(),
+            'name' => $this->name(),
+            'done' => $this->isDone(),
+            'listing_id' => $this->listingUuid(),
+        ];
     }
 }

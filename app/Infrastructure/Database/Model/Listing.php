@@ -5,6 +5,7 @@ namespace App\Infrastructure\Database\Model;
 use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -30,4 +31,9 @@ class Listing extends Model
     protected $keyType = 'string';
     public $incrementing = false;
     protected $guarded = [];
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class);
+    }
 }
