@@ -9,7 +9,7 @@
         "laravel/tinker": "^2"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^3.2",
+        "barryvdh/laravel-ide-helper": "^3",
         "fakerphp/faker": "^1",
         "laravel/pint": "^1",
         "mockery/mockery": "^1",
