@@ -4,6 +4,7 @@ namespace App\Infrastructure\Http\Controllers;
 
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
 use App\Application\UseCase\FetchListingUseCase\GetListingByUuidUseCase;
+use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
@@ -25,8 +26,10 @@ class ListingController extends Controller
             $listing = $this->getListingByUuidUseCase->handle($uuid);
             return $this->responseFactory
                 ->json($listing->toArray());
-        } catch (Throwable $e) {
-            // TODO: Add catch for 404.
+        } catch (ListingNotFoundException $e) {
+            return $this->responseFactory
+                ->json(['message' => $e->getMessage()], $e->getCode());
+        }  catch (Throwable $e) {
             return $this->responseFactory
                 ->json(['message' => 'Server Error'], 500);
         }
@@ -42,7 +45,7 @@ class ListingController extends Controller
 
             $listing = $this->createListingUseCase->handle($title, $description);
             return $this->responseFactory
-                ->json(['message' => 'Created', 'uuid' => $listing->uuid()], 201);
+                ->json(['message' => 'Created', 'id' => $listing->uuid()], 201);
         } catch (Throwable) {
             return $this->responseFactory
                 ->json(['message' => 'Server Error'], 500);

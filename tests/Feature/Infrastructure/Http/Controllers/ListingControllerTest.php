@@ -3,6 +3,7 @@
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
 use App\Application\UseCase\FetchListingUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\Listing;
+use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Database\Repository\EloquentListingRepository;
 use App\Infrastructure\Http\Controllers\ListingController;
 use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
@@ -17,10 +18,13 @@ covers(
     GetListingByUuidUseCase::class,
     CreateListingUseCase::class,
     EloquentListingRepository::class,
-    Listing::class
+    Listing::class,
+    ListingNotFoundException::class
 );
 
-it('should create a list when POSTing', function (
+//region POST
+
+it('should create a list with POST method', function (
     bool $hasDescription
 ) {
     $faker = Factory::create();
@@ -44,7 +48,7 @@ it('should create a list when POSTing', function (
         ->title->toBe($title)
         ->description->toBe($hasDescription ? $description : null);
     $response->assertStatus(201);
-    $response->assertJson(['message' => 'Created', 'uuid' => $listing->id]);
+    $response->assertJson(['message' => 'Created', 'id' => $listing->id]);
 })->with([
     'when the list has a description' => [
         'hasDescription' => true
@@ -54,7 +58,7 @@ it('should create a list when POSTing', function (
     ]
 ]);
 
-it('should throw a server error when POSTing', function () {
+it('should return a server error with POST method', function () {
     $faker = Factory::create();
 
     $title = $faker->sentence;
@@ -82,7 +86,35 @@ it('should throw a server error when POSTing', function () {
         ->and($response->getContent())->toBe(json_encode(['message' => 'Server Error']));
 });
 
-it('should fetch a list when GETting', function () {
+it('should return a server error with GET method', function () {
+    $faker = Factory::create();
+
+    $uuid = $faker->uuid;
+
+    $getListingUseCase = Mockery::mock(GetListingByUuidUseCase::class);
+
+    $getListingUseCase
+        ->shouldReceive('handle')
+        ->with($uuid)
+        ->andThrow(new Exception);
+
+    $controller = new ListingController(
+        $this->app->make(ResponseFactory::class),
+        $getListingUseCase,
+        $this->app->make(CreateListingUseCase::class)
+    );
+
+    $response = $controller->getByUuid($uuid);
+
+    expect($response->getStatusCode())->toBe(500)
+        ->and($response->getContent())->toBe(json_encode(['message' => 'Server Error']));
+});
+
+//endregion
+
+//region GET
+
+it('should fetch a list with GET method', function () {
     $faker = Factory::create();
 
     $uuid = $faker->uuid;
@@ -106,3 +138,17 @@ it('should fetch a list when GETting', function () {
         'description' => $description
     ]);
 });
+
+it('should return a not found response with GET method', function () {
+    $faker = Factory::create();
+
+    $uuid = $faker->uuid;
+    $message = sprintf('Listing with ID %s not found.', $uuid);
+
+    $response = $this->getJson("/listing/$uuid");
+
+    $response->assertStatus(404);
+    $response->assertJson(['message' => $message]);
+});
+
+//endregion
