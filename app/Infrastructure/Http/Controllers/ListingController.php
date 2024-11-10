@@ -6,6 +6,7 @@ use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
 use App\Application\UseCase\FetchListingUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
+use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
@@ -20,8 +21,10 @@ class ListingController extends Controller
     ) {
     }
 
-    public function getByUuid(string $uuid): JsonResponse
+    public function getByUuid(GetListingRequest $request): JsonResponse
     {
+        $uuid = $request->input('id');
+
         try {
             $listing = $this->getListingByUuidUseCase->handle($uuid);
             return $this->responseFactory

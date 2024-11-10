@@ -4,9 +4,11 @@ use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
 use App\Application\UseCase\FetchListingUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
+use App\Infrastructure\Common\Uuid\RamseyUuidFactory;
 use App\Infrastructure\Database\Repository\EloquentListingRepository;
 use App\Infrastructure\Http\Controllers\ListingController;
 use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
+use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
 use Faker\Factory;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +21,8 @@ covers(
     CreateListingUseCase::class,
     EloquentListingRepository::class,
     Listing::class,
-    ListingNotFoundException::class
+    ListingNotFoundException::class,
+    RamseyUuidFactory::class
 );
 
 //region POST
@@ -104,7 +107,9 @@ it('should return a server error with GET method', function () {
         $this->app->make(CreateListingUseCase::class)
     );
 
-    $response = $controller->getByUuid($uuid);
+    $response = $controller->getByUuid(new GetListingRequest([
+        'id' => $uuid
+    ]));
 
     expect($response->getStatusCode())->toBe(500)
         ->and($response->getContent())->toBe(json_encode(['message' => 'Server Error']));
