@@ -24,7 +24,7 @@ services:
     environment:
       - APP_ENV=local
       - APP_DEBUG=1
-      - XDEBUG_MODE=debug
+      - XDEBUG_MODE=coverage,debug
       - DBGP_IDEKEY=PHPSTORM
 
   db:

@@ -2,10 +2,13 @@
 
 namespace App\Domain\Item;
 
-use App\Domain\Listing\Listing;
+use Illuminate\Support\Collection;
 
 interface ItemRepositoryInterface
 {
-    public function findByListingUuid(string $listingUuid): ItemCollection;
+    /**
+     * @return Collection<int, Item>
+     */
+    public function findByListingUuid(string $listingUuid): Collection;
     public function save(Item $item): void;
 }

@@ -6,8 +6,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateListingRequest extends FormRequest
 {
-    protected $redirect = null;
-
+    /**
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [

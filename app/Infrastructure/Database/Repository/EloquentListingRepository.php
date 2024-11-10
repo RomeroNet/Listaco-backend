@@ -13,18 +13,25 @@ readonly class EloquentListingRepository implements ListingRepositoryInterface
     ) {
     }
 
-    public function searchByUuid(string $uuid): Listing
+    public function findById(string $id): Listing
     {
-        return $this
-            ->model
-            ->where('uuid', $uuid)
+        /** @var ListingModel $model */
+        $model = $this->model
+            ->where('id', $id)
             ->first();
+
+        return new Listing(
+            $model->id,
+            $model->title,
+            $model->description
+        );
     }
 
-    public function save(Listing $listing): void
+    public function save(Listing $listing): Listing
     {
-        $this
-            ->model
+        $this->model
             ->create($listing->toArray());
+
+        return $listing;
     }
 }

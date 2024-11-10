@@ -17,16 +17,24 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+
+
         $this->app->bind(UuidFactoryInterface::class, function () {
             return new RamseyUuidFactory(new UuidFactory());
         });
 
         $this->app->bind(ListingRepositoryInterface::class, function () {
-            return new EloquentListingRepository($this->app->get(Listing::class));
+            /** @var Listing $listing */
+            $listing = $this->app->get(Listing::class);
+
+            return new EloquentListingRepository($listing);
         });
 
         $this->app->bind(ItemRepositoryInterface::class, function () {
-            return new EloquentItemRepository($this->app->get(Item::class));
+            /** @var Item $item */
+            $item = $this->app->get(Item::class);
+
+            return new EloquentItemRepository($item);
         });
     }
 

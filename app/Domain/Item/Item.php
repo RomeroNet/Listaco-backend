@@ -4,6 +4,9 @@ namespace App\Domain\Item;
 
 use Illuminate\Contracts\Support\Arrayable;
 
+/**
+ * @implements Arrayable<string, string|bool>
+ */
 readonly class Item implements Arrayable
 {
     public function __construct(
@@ -12,6 +15,24 @@ readonly class Item implements Arrayable
         private readonly bool $isDone,
         private readonly string $listingUuid,
     ) {
+    }
+
+    /**
+     * @param array{
+     *     id: string,
+     *     name: string,
+     *     done: bool,
+     *     listing_id: string,
+     * } $itemData
+     */
+    public static function fromArray(array $itemData): self
+    {
+        return new self(
+            $itemData['id'],
+            $itemData['name'],
+            $itemData['done'],
+            $itemData['listing_id'],
+        );
     }
 
     public function uuid(): string

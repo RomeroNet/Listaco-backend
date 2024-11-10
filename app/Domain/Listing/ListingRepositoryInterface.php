@@ -4,6 +4,6 @@ namespace App\Domain\Listing;
 
 interface ListingRepositoryInterface
 {
-    public function searchByUuid(string $uuid): Listing;
-    public function save(Listing $listing): void;
+    public function findById(string $id): Listing;
+    public function save(Listing $listing): Listing;
 }

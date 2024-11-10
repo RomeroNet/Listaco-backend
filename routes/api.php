@@ -20,5 +20,9 @@ Route::middleware('throttle:60,1')->group(function () {
 
     Route::prefix('listing')->group(function () {
         Route::post('/', [ListingController::class, 'post']);
+
+        Route::prefix('/{uuid}')->group(function () {
+            Route::get('/', [ListingController::class, 'getByUuid']);
+        });
     });
 });

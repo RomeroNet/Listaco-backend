@@ -4,6 +4,9 @@ namespace App\Domain\Listing;
 
 use Illuminate\Contracts\Support\Arrayable;
 
+/**
+ * @implements Arrayable<string, string|null>
+ */
 readonly class Listing implements Arrayable
 {
     public function __construct(

@@ -5,7 +5,6 @@ namespace App\Infrastructure\Database\Model;
 use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -23,7 +22,9 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Listing whereId($value)
  * @method static Builder<static>|Listing whereTitle($value)
  * @method static Builder<static>|Listing whereUpdatedAt($value)
+ *
  * @mixin Eloquent
+ * @mixin Builder<self>
  */
 class Listing extends Model
 {
@@ -31,9 +32,4 @@ class Listing extends Model
     protected $keyType = 'string';
     public $incrementing = false;
     protected $guarded = [];
-
-    public function items(): HasMany
-    {
-        return $this->hasMany(Item::class);
-    }
 }

@@ -6,19 +6,21 @@ use App\Domain\Common\Uuid\UuidFactoryInterface;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingRepositoryInterface;
 
-readonly class CreateListingUseCase
+class CreateListingUseCase
 {
     public function __construct(
-        private UuidFactoryInterface $uuidFactory,
-        private ListingRepositoryInterface $listingRepository
+        private readonly UuidFactoryInterface $uuidFactory,
+        private readonly ListingRepositoryInterface $listingRepository
     ) {
     }
 
-    public function handle(string $title, ?string $description): void
+    public function handle(string $title, ?string $description): Listing
     {
-
         $uuid = $this->uuidFactory->generate();
-        $test = new Listing($uuid, $title, $description);
-        $this->listingRepository->save($test);
+        return $this->listingRepository->save(new Listing(
+            $uuid,
+            $title,
+            $description
+        ));
     }
 }
