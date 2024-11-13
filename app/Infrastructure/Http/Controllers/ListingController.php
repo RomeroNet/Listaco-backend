@@ -23,7 +23,7 @@ class ListingController extends Controller
 
     public function getByUuid(GetListingRequest $request): JsonResponse
     {
-        $uuid = $request->input('id');
+        $uuid = $request->string('id');
 
         try {
             $listing = $this->getListingByUuidUseCase->handle($uuid);
