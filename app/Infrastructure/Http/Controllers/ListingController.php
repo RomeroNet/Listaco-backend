@@ -3,7 +3,7 @@
 namespace App\Infrastructure\Http\Controllers;
 
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
-use App\Application\UseCase\FetchListingUseCase\GetListingByUuidUseCase;
+use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
 use App\Infrastructure\Http\Requests\Listing\GetListingRequest;

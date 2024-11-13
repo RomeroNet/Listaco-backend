@@ -1,7 +1,7 @@
 <?php
 
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
-use App\Application\UseCase\FetchListingUseCase\GetListingByUuidUseCase;
+use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Common\Uuid\RamseyUuidFactory;

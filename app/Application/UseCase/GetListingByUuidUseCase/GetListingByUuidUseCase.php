@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\UseCase\FetchListingUseCase;
+namespace App\Application\UseCase\GetListingByUuidUseCase;
 
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
