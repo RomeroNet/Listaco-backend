@@ -32,7 +32,7 @@ class ListingController extends Controller
         } catch (ListingNotFoundException $e) {
             return $this->responseFactory
                 ->json(['message' => $e->getMessage()], $e->getCode());
-        }  catch (Throwable $e) {
+        }  catch (Throwable) {
             return $this->responseFactory
                 ->json(['message' => 'Server Error'], 500);
         }

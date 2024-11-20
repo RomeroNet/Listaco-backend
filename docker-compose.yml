@@ -19,12 +19,11 @@ services:
       dockerfile: docker/dev/php/Dockerfile
     volumes:
       - ./:/app
-#      - ./xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     user: "1000:1000"
     environment:
       - APP_ENV=local
       - APP_DEBUG=1
-      - XDEBUG_MODE=coverage,debug
+      - XDEBUG_MODE=coverage
       - DBGP_IDEKEY=PHPSTORM
 
   db:
