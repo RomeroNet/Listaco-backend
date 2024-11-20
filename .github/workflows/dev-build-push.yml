@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feat/add-develop-deployment
   workflow_dispatch:
 
 permissions:
