@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property string $id
  * @property string $name
- * @property int $done
+ * @property bool $done
  * @property string $listing_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -24,7 +24,16 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Item whereListingId($value)
  * @method static Builder<static>|Item whereName($value)
  * @method static Builder<static>|Item whereUpdatedAt($value)
+ *
  * @mixin Eloquent
+ * @mixin Builder<self>
+ *
+ * @method array{
+ *    id: string,
+ *    name: string,
+ *    done: bool,
+ *    listing_id: string,
+ * } toArray()
  */
 class Item extends Model
 {

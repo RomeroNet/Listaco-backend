@@ -23,6 +23,8 @@ services:
     environment:
       - APP_ENV=local
       - APP_DEBUG=1
+      - XDEBUG_MODE=coverage
+      - DBGP_IDEKEY=PHPSTORM
 
   db:
     container_name: laravel-db

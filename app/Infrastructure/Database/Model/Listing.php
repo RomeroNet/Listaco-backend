@@ -22,7 +22,9 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Listing whereId($value)
  * @method static Builder<static>|Listing whereTitle($value)
  * @method static Builder<static>|Listing whereUpdatedAt($value)
+ *
  * @mixin Eloquent
+ * @mixin Builder<self>
  */
 class Listing extends Model
 {
