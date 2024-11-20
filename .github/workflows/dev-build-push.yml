@@ -65,6 +65,7 @@ jobs:
         with:
           context: .
           file: docker/prod/php/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.USER }}/${{ env.REPOSITORY }}/php:${{ github.sha }}
 
