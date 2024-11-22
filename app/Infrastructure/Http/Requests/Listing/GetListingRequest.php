@@ -9,7 +9,7 @@ class GetListingRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'id' => $this->route('uuid'),
+            'uuid' => $this->route('uuid'),
         ]);
     }
 
@@ -19,7 +19,7 @@ class GetListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|uuid',
+            'uuid' => 'required|uuid',
         ];
     }
 

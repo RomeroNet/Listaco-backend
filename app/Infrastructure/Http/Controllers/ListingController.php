@@ -23,7 +23,7 @@ class ListingController extends Controller
 
     public function getByUuid(GetListingRequest $request): JsonResponse
     {
-        $uuid = $request->string('id');
+        $uuid = $request->string('uuid');
 
         try {
             $listing = $this->getListingByUuidUseCase->handle($uuid);
@@ -48,7 +48,7 @@ class ListingController extends Controller
 
             $listing = $this->createListingUseCase->handle($title, $description);
             return $this->responseFactory
-                ->json(['message' => 'Created', 'id' => $listing->uuid()], 201);
+                ->json(['message' => 'Created', 'id' => $listing->uuid], 201);
         } catch (Throwable) {
             return $this->responseFactory
                 ->json(['message' => 'Server Error'], 500);
