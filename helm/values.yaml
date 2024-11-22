@@ -31,7 +31,7 @@ nginx:
     port: 80
   ingress:
     host: dev-listaco.romeronet.es
-    tlsSecret: listaco-backend-tls
+    tlsSecret: tls
     path: /api
 
 php:
