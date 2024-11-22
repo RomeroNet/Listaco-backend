@@ -1,6 +1,12 @@
 name: Run tests
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read

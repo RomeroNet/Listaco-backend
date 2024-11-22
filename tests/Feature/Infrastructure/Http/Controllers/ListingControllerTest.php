@@ -42,7 +42,7 @@ it('should create a list with POST method', function (
         $data['description'] = $description;
     }
 
-    $response = $this->postJson('/listing', $data);
+    $response = $this->postJson('/api/listing', $data);
 
     $listing = ListingModel::query()->first();
 
@@ -134,7 +134,7 @@ it('should fetch a list with GET method', function () {
 
     $listing->save();
 
-    $response = $this->getJson("/listing/$uuid");
+    $response = $this->getJson("/api/listing/$uuid");
 
     $response->assertStatus(200);
     $response->assertJson([
@@ -150,7 +150,7 @@ it('should return a not found response with GET method', function () {
     $uuid = $faker->uuid;
     $message = sprintf('Listing with ID %s not found.', $uuid);
 
-    $response = $this->getJson("/listing/$uuid");
+    $response = $this->getJson("/api/listing/$uuid");
 
     $response->assertStatus(404);
     $response->assertJson(['message' => $message]);
