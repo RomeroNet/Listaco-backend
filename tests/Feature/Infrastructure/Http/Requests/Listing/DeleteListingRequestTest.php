@@ -1,12 +1,12 @@
 <?php
 
-use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
+use App\Infrastructure\Http\Requests\Listing\DeleteListingRequest;
 use Faker\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Validation\ValidationException;
 
 covers(
-    GetListingRequest::class
+    DeleteListingRequest::class
 );
 
 it('should validate the input', function (
@@ -18,12 +18,19 @@ it('should validate the input', function (
     $uuid = $hasUuid ? $faker->uuid : null;
     $uuid = $uuidIsValid ? $uuid : $faker->word;
 
-    $request = new GetListingRequest([], [], [], [], [], ['REQUEST_URI' => "/api/listing/{$uuid}"]);
+    $request = new DeleteListingRequest(
+        [],
+        [],
+        [],
+        [],
+        [],
+        ['REQUEST_URI' => "/api/listing/{$uuid}"]
+    );
 
     try {
         $request->setContainer(app())
             ->setRedirector(app()->make('redirect'))
-            ->setRouteResolver(fn() => new Route('GET', '/api/listing/{uuid}', [])->bind($request))
+            ->setRouteResolver(fn() => new Route('DELETE', '/api/listing/{uuid}', [])->bind($request))
             ->validateResolved();
         $result = true;
     } catch (ValidationException) {

@@ -35,6 +35,22 @@ readonly class EloquentListingRepository implements ListingRepositoryInterface
         );
     }
 
+    /**
+     * @throws ListingNotFoundException
+     */
+    public function deleteByUuid(string $uuid): void
+    {
+        $model = $this->model
+            ->where('id', $uuid)
+            ->first();
+
+        if ($model === null) {
+            throw ListingNotFoundException::fromUuid($uuid);
+        }
+
+        $model->delete();
+    }
+
     public function save(Listing $listing): Listing
     {
         $this->model

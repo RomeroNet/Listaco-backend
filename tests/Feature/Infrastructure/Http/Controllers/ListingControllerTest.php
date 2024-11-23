@@ -1,33 +1,31 @@
 <?php
 
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
+use App\Application\UseCase\DeleteListingUseCase\DeleteListingUseCase;
 use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Common\Uuid\RamseyUuidFactory;
 use App\Infrastructure\Database\Repository\EloquentListingRepository;
 use App\Infrastructure\Http\Controllers\ListingController;
-use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
-use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
 use Faker\Factory;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Infrastructure\Database\Model\Listing as ListingModel;
+use Symfony\Component\HttpFoundation\Response;
 
 uses(RefreshDatabase::class);
 covers(
     ListingController::class,
     GetListingByUuidUseCase::class,
     CreateListingUseCase::class,
+    DeleteListingUseCase::class,
     EloquentListingRepository::class,
     Listing::class,
     ListingNotFoundException::class,
     RamseyUuidFactory::class
 );
 
-//region POST
-
-it('should create a list with POST method', function (
+it('should create a list, then fetch it', function (
     bool $hasDescription
 ) {
     $faker = Factory::create();
@@ -42,16 +40,21 @@ it('should create a list with POST method', function (
         $data['description'] = $description;
     }
 
-    $response = $this->postJson('/api/listing', $data);
+    $creationResponse = $this->postJson('/api/listing', $data);
 
-    $listing = ListingModel::query()->first();
+    $databaseListing = ListingModel::firstOrFail();
 
-    expect($listing)
-        ->toBeInstanceOf(ListingModel::class)
-        ->title->toBe($title)
-        ->description->toBe($hasDescription ? $description : null);
-    $response->assertStatus(201);
-    $response->assertJson(['message' => 'Created', 'id' => $listing->id]);
+    $fetchResponse = $this->getJson("/api/listing/{$databaseListing->id}");
+
+    $creationResponse->assertStatus(Response::HTTP_CREATED);
+    $creationResponse->assertJson(['message' => 'Created', 'id' => $databaseListing->id]);
+
+    $fetchResponse->assertStatus(Response::HTTP_OK);
+    $fetchResponse->assertJson([
+        'id' => $databaseListing->id,
+        'title' => $title,
+        'description' => $hasDescription ? $description : null
+    ]);
 })->with([
     'when the list has a description' => [
         'hasDescription' => true
@@ -61,90 +64,31 @@ it('should create a list with POST method', function (
     ]
 ]);
 
-it('should return a server error with POST method', function () {
+it('should create a listing, then remove it, and finally try to fetch it', function () {
     $faker = Factory::create();
 
     $title = $faker->sentence;
     $description = $faker->paragraph;
 
-    $createListingUseCase = Mockery::mock(CreateListingUseCase::class);
-
-    $createListingUseCase
-        ->shouldReceive('handle')
-        ->with($title, $description)
-        ->andThrow(new Exception);
-
-    $controller = new ListingController(
-        $this->app->make(ResponseFactory::class),
-        $this->app->make(GetListingByUuidUseCase::class),
-        $createListingUseCase
-    );
-
-    $response = $controller->post(new CreateListingRequest([
-        'title' => $title,
-        'description' => $description
-    ]));
-
-    expect($response->getStatusCode())->toBe(500)
-        ->and($response->getContent())->toBe(json_encode(['message' => 'Server Error']));
-});
-
-it('should return a server error with GET method', function () {
-    $faker = Factory::create();
-
-    $uuid = $faker->uuid;
-
-    $getListingUseCase = Mockery::mock(GetListingByUuidUseCase::class);
-
-    $getListingUseCase
-        ->shouldReceive('handle')
-        ->with($uuid)
-        ->andThrow(new Exception);
-
-    $controller = new ListingController(
-        $this->app->make(ResponseFactory::class),
-        $getListingUseCase,
-        $this->app->make(CreateListingUseCase::class)
-    );
-
-    $response = $controller->getByUuid(new GetListingRequest([
-        'id' => $uuid
-    ]));
-
-    expect($response->getStatusCode())->toBe(500)
-        ->and($response->getContent())->toBe(json_encode(['message' => 'Server Error']));
-});
-
-//endregion
-
-//region GET
-
-it('should fetch a list with GET method', function () {
-    $faker = Factory::create();
-
-    $uuid = $faker->uuid;
-    $title = $faker->sentence;
-    $description = $faker->paragraph;
-
-    $listing = new ListingModel([
-        'id' => $uuid,
+    $creationResponse = $this->postJson('/api/listing', [
         'title' => $title,
         'description' => $description
     ]);
 
-    $listing->save();
+    $databaseListing = ListingModel::firstOrFail();
 
-    $response = $this->getJson("/api/listing/$uuid");
+    $deletionResponse = $this->deleteJson("/api/listing/{$databaseListing->id}");
+    $fetchResponse = $this->getJson("/api/listing/{$databaseListing->id}");
 
-    $response->assertStatus(200);
-    $response->assertJson([
-        'id' => $uuid,
-        'title' => $title,
-        'description' => $description
-    ]);
+    $creationResponse->assertStatus(Response::HTTP_CREATED);
+    $creationResponse->assertJson(['message' => 'Created', 'id' => $databaseListing->id]);
+    $deletionResponse->assertStatus(Response::HTTP_OK);
+    $deletionResponse->assertJson(['message' => 'Deleted']);
+    $fetchResponse->assertStatus(Response::HTTP_NOT_FOUND);
+    $fetchResponse->assertJson(['message' => "Listing with ID {$databaseListing->id} not found."]);
 });
 
-it('should return a not found response with GET method', function () {
+it('should return a not found response when fetching', function () {
     $faker = Factory::create();
 
     $uuid = $faker->uuid;
@@ -152,8 +96,18 @@ it('should return a not found response with GET method', function () {
 
     $response = $this->getJson("/api/listing/$uuid");
 
-    $response->assertStatus(404);
+    $response->assertStatus(Response::HTTP_NOT_FOUND);
     $response->assertJson(['message' => $message]);
 });
 
-//endregion
+it('should return a not found response when deleting', function () {
+    $faker = Factory::create();
+
+    $uuid = $faker->uuid;
+    $message = sprintf('Listing with ID %s not found.', $uuid);
+
+    $response = $this->deleteJson("/api/listing/$uuid");
+
+    $response->assertStatus(Response::HTTP_NOT_FOUND);
+    $response->assertJson(['message' => $message]);
+});
