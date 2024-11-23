@@ -28,7 +28,6 @@ use Illuminate\Support\Carbon;
  */
 class Listing extends Model
 {
-    protected $primaryKey = 'uuid';
     protected $keyType = 'string';
     public $incrementing = false;
     protected $guarded = [];
