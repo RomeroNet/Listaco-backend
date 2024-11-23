@@ -12,7 +12,7 @@ use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Symfony\Component\HttpFoundation\Response as Response;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class ListingController extends Controller
@@ -27,7 +27,7 @@ class ListingController extends Controller
 
     public function getByUuid(GetListingRequest $request): JsonResponse
     {
-        $uuid = $request->string('id');
+        $uuid = $request->string('uuid');
 
         try {
             $listing = $this->getListingByUuidUseCase->handle($uuid);
