@@ -5,7 +5,9 @@ use Faker\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Validation\ValidationException;
 
-covers(GetListingRequest::class);
+covers(
+    GetListingRequest::class
+);
 
 it('should validate the input', function (
     bool $hasUuid,

@@ -5,6 +5,10 @@ use Faker\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Validation\ValidationException;
 
+covers(
+    DeleteListingRequest::class
+);
+
 it('should validate the input', function (
     bool $hasUuid,
     bool $uuidIsValid,

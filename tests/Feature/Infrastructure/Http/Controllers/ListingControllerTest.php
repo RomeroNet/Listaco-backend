@@ -1,6 +1,7 @@
 <?php
 
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
+use App\Application\UseCase\DeleteListingUseCase\DeleteListingUseCase;
 use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
@@ -17,6 +18,7 @@ covers(
     ListingController::class,
     GetListingByUuidUseCase::class,
     CreateListingUseCase::class,
+    DeleteListingUseCase::class,
     EloquentListingRepository::class,
     Listing::class,
     ListingNotFoundException::class,

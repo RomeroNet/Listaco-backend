@@ -11,6 +11,10 @@ use Faker\Factory;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 
+covers(
+    ListingController::class
+);
+
 it('should handle a server error when creating a list', function () {
     $faker = Factory::create();
 
@@ -64,7 +68,7 @@ it('should handle a server error when fetching a list', function () {
 
     $request
         ->shouldReceive('string')
-        ->with('id')
+        ->with('uuid')
         ->andReturn($uuid);
 
     $getListingByUuidUseCase
@@ -100,7 +104,7 @@ it('should handle a server error when deleting a list', function () {
 
     $request
         ->shouldReceive('string')
-        ->with('id')
+        ->with('uuid')
         ->andReturn($uuid);
 
     $deleteListingUseCase

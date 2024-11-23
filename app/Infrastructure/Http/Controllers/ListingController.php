@@ -51,18 +51,18 @@ class ListingController extends Controller
             $description = $request->input('description');
 
             $listing = $this->createListingUseCase->handle($title, $description);
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return $this->responseFactory
                 ->json(['message' => 'Server Error'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->responseFactory
-            ->json(['message' => 'Created', 'id' => $listing->uuid()], Response::HTTP_CREATED);
+            ->json(['message' => 'Created', 'id' => $listing->uuid], Response::HTTP_CREATED);
     }
 
     public function deleteByUuid(DeleteListingRequest $request): JsonResponse
     {
-        $uuid = $request->string('id');
+        $uuid = $request->string('uuid');
 
         try {
             $this->deleteListingUseCase->handle($uuid);
