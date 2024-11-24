@@ -14,6 +14,6 @@ class ListingNotFoundException extends Exception
 
     public static function fromUuid(string $uuid): self
     {
-        return new self("Listing with ID $uuid not found.");
+        return new self("ListingModel with ID $uuid not found.");
     }
 }

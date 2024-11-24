@@ -1,11 +1,9 @@
 <?php
 
-use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
-use App\Application\UseCase\DeleteListingUseCase\DeleteListingUseCase;
-use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
+use App\Application\UseCase\Listing\DeleteListingUseCase;
+use App\Application\UseCase\Listing\GetListingByUuidUseCase;
 use App\Application\UseCase\Listing\UpdateListingUseCase;
-use App\Infrastructure\Http\Controllers\ListingController;
-use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
+use App\Infrastructure\Http\Controllers\Listing\Uuid\ListingByUuidController;
 use App\Infrastructure\Http\Requests\Listing\DeleteListingRequest;
 use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
 use App\Infrastructure\Http\Requests\Listing\UpdateListingRequest;
@@ -14,47 +12,8 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 
 covers(
-    ListingController::class
+    ListingByUuidController::class
 );
-
-it('should handle a server error when creating a list', function () {
-    $faker = Factory::create();
-
-    $responseFactory = Mockery::mock(ResponseFactory::class);
-    $createListingUseCase = Mockery::mock(CreateListingUseCase::class);
-    $request = Mockery::mock(CreateListingRequest::class);
-    $response = Mockery::mock(JsonResponse::class);
-
-    $request
-        ->shouldReceive('input')
-        ->with('title')
-        ->andReturn($faker->sentence);
-    $request
-        ->shouldReceive('input')
-        ->with('description')
-        ->andReturn($faker->paragraph);
-
-    $createListingUseCase
-        ->shouldReceive('handle')
-        ->andThrow(new Exception());
-
-    $responseFactory
-        ->shouldReceive('json')
-        ->with(['message' => 'Server Error'], 500)
-        ->andReturn($response);
-
-    $controller = new ListingController(
-        $responseFactory,
-        Mockery::mock(GetListingByUuidUseCase::class),
-        $createListingUseCase,
-        Mockery::mock(DeleteListingUseCase::class),
-        Mockery::mock(UpdateListingUseCase::class)
-    );
-
-    $result = $controller->post($request);
-
-    expect($result)->toBe($response);
-});
 
 it('should handle a server error when fetching a list', function () {
     $faker = Factory::create();
@@ -78,15 +37,14 @@ it('should handle a server error when fetching a list', function () {
         ->with(['message' => 'Server Error'], 500)
         ->andReturn($response);
 
-    $controller = new ListingController(
+    $controller = new ListingByUuidController(
         $responseFactory,
         $getListingByUuidUseCase,
-        Mockery::mock(CreateListingUseCase::class),
         Mockery::mock(DeleteListingUseCase::class),
         Mockery::mock(UpdateListingUseCase::class)
     );
 
-    $result = $controller->getByUuid($request);
+    $result = $controller->get($request);
 
     expect($result)->toBe($response);
 });
@@ -113,15 +71,14 @@ it('should handle a server error when deleting a list', function () {
         ->with(['message' => 'Server Error'], 500)
         ->andReturn($response);
 
-    $controller = new ListingController(
+    $controller = new ListingByUuidController(
         $responseFactory,
         Mockery::mock(GetListingByUuidUseCase::class),
-        Mockery::mock(CreateListingUseCase::class),
         $deleteListingUseCase,
         Mockery::mock(UpdateListingUseCase::class)
     );
 
-    $result = $controller->deleteByUuid($request);
+    $result = $controller->delete($request);
 
     expect($result)->toBe($response);
 });
@@ -156,10 +113,9 @@ it('should handle a server error when updating a list', function () {
         ->with(['message' => 'Server Error'], 500)
         ->andReturn($response);
 
-    $controller = new ListingController(
+    $controller = new ListingByUuidController(
         $responseFactory,
         Mockery::mock(GetListingByUuidUseCase::class),
-        Mockery::mock(CreateListingUseCase::class),
         Mockery::mock(DeleteListingUseCase::class),
         $updateListingUseCase
     );

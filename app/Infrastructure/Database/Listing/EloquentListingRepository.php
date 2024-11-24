@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Infrastructure\Database\Repository;
+namespace App\Infrastructure\Database\Listing;
 
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Domain\Listing\ListingRepositoryInterface;
-use App\Infrastructure\Database\Model\Listing as ListingModel;
+use App\Infrastructure\Database\Listing\ListingModel as ListingModel;
 
 readonly class EloquentListingRepository implements ListingRepositoryInterface
 {

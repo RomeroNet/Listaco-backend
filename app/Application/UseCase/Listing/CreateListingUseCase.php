@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\UseCase\CreateListingUseCase;
+namespace App\Application\UseCase\Listing;
 
 use App\Domain\Common\Uuid\UuidFactoryInterface;
 use App\Domain\Listing\Listing;
