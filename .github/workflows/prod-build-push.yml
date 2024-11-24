@@ -85,7 +85,7 @@ jobs:
         uses: azure/setup-helm@v4
 
       - name: Set up kubeconfig
-        run: mkdir -p ~/.kube && echo "${{ secrets.KUBECTL_CONTENT }}" > ~/.kube/config
+        run: mkdir -p ~/.kube && echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
       - name: Deploy to Kubernetes
         run: |
