@@ -3,6 +3,7 @@
 use App\Application\UseCase\CreateListingUseCase\CreateListingUseCase;
 use App\Application\UseCase\DeleteListingUseCase\DeleteListingUseCase;
 use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
+use App\Application\UseCase\Listing\UpdateListingUseCase;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Infrastructure\Common\Uuid\RamseyUuidFactory;
@@ -19,6 +20,7 @@ covers(
     GetListingByUuidUseCase::class,
     CreateListingUseCase::class,
     DeleteListingUseCase::class,
+    UpdateListingUseCase::class,
     EloquentListingRepository::class,
     Listing::class,
     ListingNotFoundException::class,
@@ -88,6 +90,45 @@ it('should create a listing, then remove it, and finally try to fetch it', funct
     $fetchResponse->assertJson(['message' => "Listing with ID {$databaseListing->id} not found."]);
 });
 
+it('should create a list, then update it, and finally fetch it', function () {
+    $faker = Factory::create();
+
+    $title = $faker->sentence;
+    $description = $faker->paragraph;
+    $newTitle = $faker->sentence;
+    $newDescription = $faker->paragraph;
+
+    $creationResponse = $this->postJson('/api/listing', [
+        'title' => $title,
+        'description' => $description
+    ]);
+
+    $databaseListing = ListingModel::firstOrFail();
+
+    $updateResponse = $this->patchJson("/api/listing/{$databaseListing->id}", [
+        'title' => $newTitle,
+        'description' => $newDescription
+    ]);
+
+    $fetchResponse = $this->getJson("/api/listing/{$databaseListing->id}");
+
+    $creationResponse->assertStatus(Response::HTTP_CREATED);
+    $creationResponse->assertJson(['message' => 'Created', 'id' => $databaseListing->id]);
+
+    $updateResponse->assertStatus(Response::HTTP_OK);
+    $updateResponse->assertJson(['message' => 'Updated', 'id' => $databaseListing->id]);
+
+    $fetchResponse->assertStatus(Response::HTTP_OK);
+    $fetchResponse->assertJson([
+        'id' => $databaseListing->id,
+        'title' => $newTitle,
+        'description' => $newDescription
+    ]);
+
+    expect($databaseListing->title)->toBe($title)
+        ->and($databaseListing->description)->toBe($description);
+});
+
 it('should return a not found response when fetching', function () {
     $faker = Factory::create();
 
@@ -107,6 +148,21 @@ it('should return a not found response when deleting', function () {
     $message = sprintf('Listing with ID %s not found.', $uuid);
 
     $response = $this->deleteJson("/api/listing/$uuid");
+
+    $response->assertStatus(Response::HTTP_NOT_FOUND);
+    $response->assertJson(['message' => $message]);
+});
+
+it('should return a not found response when updating', function () {
+    $faker = Factory::create();
+
+    $uuid = $faker->uuid;
+    $message = sprintf('Listing with ID %s not found.', $uuid);
+
+    $response = $this->patchJson("/api/listing/$uuid", [
+        'title' => $faker->sentence,
+        'description' => $faker->paragraph
+    ]);
 
     $response->assertStatus(Response::HTTP_NOT_FOUND);
     $response->assertJson(['message' => $message]);
