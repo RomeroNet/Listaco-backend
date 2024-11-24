@@ -1,6 +1,6 @@
 <?php
 
-use App\Application\UseCase\GetListingByUuidUseCase\GetListingByUuidUseCase;
+use App\Application\UseCase\Listing\GetListingByUuidUseCase;
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingRepositoryInterface;
 

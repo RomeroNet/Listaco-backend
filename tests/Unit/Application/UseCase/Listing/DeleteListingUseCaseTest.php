@@ -1,6 +1,6 @@
 <?php
 
-use App\Application\UseCase\DeleteListingUseCase\DeleteListingUseCase;
+use App\Application\UseCase\Listing\DeleteListingUseCase;
 use App\Domain\Listing\ListingRepositoryInterface;
 
 covers(
