@@ -1,6 +1,9 @@
 <?php
 
+use App\Infrastructure\Http\Controllers\Index;
 use function Pest\Laravel\getJson;
+
+covers(Index::class);
 
 const EXPECTED_CONTENT = ['status' => 'RomeroNet Boilerplate :)'];
 

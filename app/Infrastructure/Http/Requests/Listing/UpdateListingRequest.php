@@ -20,8 +20,8 @@ class UpdateListingRequest extends FormRequest
     {
         return [
             'uuid' => 'required|uuid',
-            'title' => 'string',
-            'description' => 'string',
+            'title' => 'string|nullable',
+            'description' => 'string|nullable',
         ];
     }
 
