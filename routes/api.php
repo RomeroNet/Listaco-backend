@@ -1,6 +1,7 @@
 <?php
 
 use App\Infrastructure\Http\Controllers\Index;
+use App\Infrastructure\Http\Controllers\ListingController;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -29,7 +29,10 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
-            Route::group([], base_path('routes/api.php'));
+            Route::prefix('api')->group(function () {
+                Route::group([], base_path('routes/api.php'));
+                Route::prefix('listing')->group(base_path('routes/api/listing.php'));
+            });
         });
     }
 
@@ -41,7 +44,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(60)->by($request->ip());
         });
     }
 }

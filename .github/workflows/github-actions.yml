@@ -1,6 +1,12 @@
 name: Run tests
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,13 +28,25 @@ jobs:
         run: sed -i 's/"1000:1000"/"1001:115"/g' docker-compose.yml
 
       - name: Prepare test Docker image
-        run: make build-dev
+        run: make build
 
       - name: Generate encryption key
-        run: docker compose -f docker-compose.yml -f docker-compose-dev.yml run --rm php bash -c "php artisan key:generate"
+        run: docker compose -f docker-compose.yml run --rm php bash -c "php artisan key:generate"
+
+      - name: Start database
+        run: docker compose -f docker-compose.yml up -d db
+
+      - name: Wait for database to start
+        run: sleep 10
+
+      - name: Run migrations
+        run: docker compose -f docker-compose.yml run --rm php bash -c "php artisan migrate"
 
       - name: Run tests
         run: make test
+
+      - name: Run quality checks
+        run: make quality
 
   test-dev-php-build:
     runs-on: ubuntu-latest
