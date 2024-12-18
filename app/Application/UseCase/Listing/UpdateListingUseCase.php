@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Application\UseCase\DeleteListingUseCase;
+namespace App\Application\UseCase\Listing;
 
+use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Domain\Listing\ListingRepositoryInterface;
 
-class DeleteListingUseCase
+class UpdateListingUseCase
 {
     public function __construct(
         private readonly ListingRepositoryInterface $listingRepository
@@ -15,9 +16,8 @@ class DeleteListingUseCase
     /**
      * @throws ListingNotFoundException
      */
-    public function handle(string $uuid): void
+    public function handle(string $uuid, ?string $title, ?string $description): Listing
     {
-        $this->listingRepository
-            ->deleteByUuid($uuid);
+        return $this->listingRepository->update($uuid, $title, $description);
     }
 }

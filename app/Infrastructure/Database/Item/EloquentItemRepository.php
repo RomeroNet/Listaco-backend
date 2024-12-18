@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Infrastructure\Database\Repository;
+namespace App\Infrastructure\Database\Item;
 
 use App\Domain\Item\Item;
 use App\Domain\Item\ItemRepositoryInterface;
-use App\Infrastructure\Database\Model\Item as ItemModel;
 use Illuminate\Support\Collection;
 
 readonly class EloquentItemRepository implements ItemRepositoryInterface

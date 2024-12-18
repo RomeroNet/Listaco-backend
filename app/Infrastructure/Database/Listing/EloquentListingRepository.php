@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Infrastructure\Database\Repository;
+namespace App\Infrastructure\Database\Listing;
 
 use App\Domain\Listing\Listing;
 use App\Domain\Listing\ListingNotFoundException;
 use App\Domain\Listing\ListingRepositoryInterface;
-use App\Infrastructure\Database\Model\Listing as ListingModel;
+use App\Infrastructure\Database\Listing\ListingModel as ListingModel;
 
 readonly class EloquentListingRepository implements ListingRepositoryInterface
 {
@@ -49,6 +49,36 @@ readonly class EloquentListingRepository implements ListingRepositoryInterface
         }
 
         $model->delete();
+    }
+
+    /**
+     * @throws ListingNotFoundException
+     */
+    public function update(string $uuid, ?string $title, ?string $description): Listing
+    {
+        $model = $this->model
+            ->where('id', $uuid)
+            ->first();
+
+        if ($model === null) {
+            throw ListingNotFoundException::fromUuid($uuid);
+        }
+
+        if ($title !== null) {
+            $model->title = $title;
+        }
+
+        if ($description !== null) {
+            $model->description = $description;
+        }
+
+        $model->save();
+
+        return new Listing(
+            $model->id,
+            $model->title,
+            $model->description
+        );
     }
 
     public function save(Listing $listing): Listing

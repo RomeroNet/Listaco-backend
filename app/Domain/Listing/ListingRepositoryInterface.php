@@ -14,5 +14,10 @@ interface ListingRepositoryInterface
      */
     public function deleteByUuid(string $uuid): void;
 
+    /**
+     * @throws ListingNotFoundException
+     */
+    public function update(string $uuid, ?string $title, ?string $description): Listing;
+
     public function save(Listing $listing): Listing;
 }
