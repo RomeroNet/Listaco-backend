@@ -1,48 +1,60 @@
 <?php
 
-use App\Application\UseCase\Listing\CreateListingUseCase;
+use App\Infrastructure\Database\Listing\ListingModel;
 use App\Infrastructure\Http\Controllers\Listing\ListingController;
-use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
 use Faker\Factory;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 covers(
     ListingController::class
 );
 
-it('should handle a server error when creating a list', function () {
+it('should create a list', function (
+    bool $hasDescription
+) {
     $faker = Factory::create();
 
-    $responseFactory = Mockery::mock(ResponseFactory::class);
-    $createListingUseCase = Mockery::mock(CreateListingUseCase::class);
-    $request = Mockery::mock(CreateListingRequest::class);
-    $response = Mockery::mock(JsonResponse::class);
+    $title = $faker->sentence;
+    $description = $faker->paragraph;
+    $data = [
+        'title' => $title
+    ];
 
-    $request
-        ->shouldReceive('input')
-        ->with('title')
-        ->andReturn($faker->sentence);
-    $request
-        ->shouldReceive('input')
-        ->with('description')
-        ->andReturn($faker->paragraph);
+    if ($hasDescription) {
+        $data['description'] = $description;
+    }
 
-    $createListingUseCase
-        ->shouldReceive('handle')
-        ->andThrow(new Exception());
+    $creationResponse = $this->postJson('/api/listing', $data);
 
-    $responseFactory
-        ->shouldReceive('json')
-        ->with(['message' => 'Server Error'], 500)
-        ->andReturn($response);
+    /** @var ListingModel $databaseListing */
+    $databaseListing = ListingModel::first();
 
-    $controller = new ListingController(
-        $responseFactory,
-        $createListingUseCase
-    );
+    $creationResponse->assertStatus(Response::HTTP_CREATED);
+    $creationResponse->assertJson(['message' => 'Created', 'id' => $databaseListing->id]);
+    expect($databaseListing->title)->toBe($title)
+        ->and($databaseListing->description)->toBe($hasDescription ? $description : null);
+})->with([
+    'when the list has a description' => [
+        'hasDescription' => true
+    ],
+    'when the list does not have a description' => [
+        'hasDescription' => false
+    ]
+]);
 
-    $result = $controller->post($request);
+it('should catch a server error when creating a list', function () {
+    $faker = Factory::create();
 
-    expect($result)->toBe($response);
+    forceDatabaseError();
+
+    $title = $faker->sentence;
+    $description = $faker->paragraph;
+
+    $creationResponse = $this->postJson('/api/listing', [
+        'title' => $title,
+        'description' => $description
+    ]);
+
+    $creationResponse->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+    $creationResponse->assertJson(['message' => 'Server Error']);
 });

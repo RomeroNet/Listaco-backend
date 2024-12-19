@@ -13,8 +13,8 @@
 
 uses(
     Tests\TestCase::class,
-    // Illuminate\Foundation\Testing\RefreshDatabase::class,
-)->in('Feature');
+     Illuminate\Foundation\Testing\RefreshDatabase::class,
+)->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +42,9 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function forceDatabaseError(): void
 {
-    // ..
+    DB::disconnect('mysql');
+    Config::set('database.connections.mysql.username', 'fake');
+    DB::reconnect('mysql');
 }
