@@ -26,9 +26,11 @@ readonly class EloquentItemRepository implements ItemRepositoryInterface
         return $items->map(fn(ItemModel $item) => Item::fromArray($item->toArray()));
     }
 
-    public function save(Item $item): void
+    public function save(Item $item): Item
     {
         $this->model
-            ->upsert($item->toArray(), ['id']);
+            ->create($item->toArray());
+
+        return $item;
     }
 }
