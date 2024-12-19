@@ -100,6 +100,10 @@ it('should handle a server error when updating a list', function () {
         ->with('title')
         ->andReturn($faker->sentence);
     $request
+        ->shouldReceive('has')
+        ->with('description')
+        ->andReturn(true);
+    $request
         ->shouldReceive('string')
         ->with('description')
         ->andReturn($faker->paragraph);

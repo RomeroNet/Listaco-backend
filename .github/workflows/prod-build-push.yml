@@ -1,4 +1,4 @@
-name: Build and push dev images
+name: Build and push prod images
 
 on:
   push:

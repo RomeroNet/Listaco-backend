@@ -46,26 +46,34 @@ it('should fetch a list', function () {
     ]);
 });
 
-it('should update a list', function () {
+it('should update a list', function (
+    bool $hasDescription
+) {
     $faker = Factory::create();
 
     $uuid = $faker->uuid;
     $title = $faker->sentence;
     $description = $faker->paragraph;
     $newTitle = $faker->sentence;
-    $newDescription = $faker->paragraph;
+    $newDescription = $hasDescription ? $faker->paragraph : null;
 
     $model = new ListingModel([
         'id' => $uuid,
         'title' => $title,
         'description' => $description
     ]);
+
     $model->save();
 
-    $response = $this->patchJson("/api/listing/$uuid", [
+    $request = [
         'title' => $newTitle,
-        'description' => $newDescription
-    ]);
+    ];
+
+    if ($hasDescription) {
+        $request['description'] = $newDescription;
+    }
+
+    $response = $this->patchJson("/api/listing/$uuid", $request);
 
     $response->assertStatus(Response::HTTP_OK);
     $response->assertJson([
@@ -78,7 +86,14 @@ it('should update a list', function () {
 
     expect($updatedModel->title)->toBe($newTitle)
         ->and($updatedModel->description)->toBe($newDescription);
-});
+})->with([
+    'when the list has a description' => [
+        'hasDescription' => true
+    ],
+    'when the list does not have a description' => [
+        'hasDescription' => false
+    ]
+]);
 
 it('should delete a list', function () {
     $faker = Factory::create();

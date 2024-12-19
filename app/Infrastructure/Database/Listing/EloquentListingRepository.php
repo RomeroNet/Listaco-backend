@@ -54,7 +54,7 @@ readonly class EloquentListingRepository implements ListingRepositoryInterface
     /**
      * @throws ListingNotFoundException
      */
-    public function update(string $uuid, ?string $title, ?string $description): Listing
+    public function update(string $uuid, string $title, ?string $description): Listing
     {
         $model = $this->model
             ->where('id', $uuid)
@@ -64,13 +64,8 @@ readonly class EloquentListingRepository implements ListingRepositoryInterface
             throw ListingNotFoundException::fromUuid($uuid);
         }
 
-        if ($title !== null) {
-            $model->title = $title;
-        }
-
-        if ($description !== null) {
-            $model->description = $description;
-        }
+        $model->title = $title;
+        $model->description = $description;
 
         $model->save();
 

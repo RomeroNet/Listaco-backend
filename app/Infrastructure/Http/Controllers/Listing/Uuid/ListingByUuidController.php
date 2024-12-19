@@ -64,7 +64,9 @@ class ListingByUuidController extends Controller
     {
         $uuid = $request->string('uuid');
         $title = $request->string('title');
-        $description = $request->string('description');
+        $description = $request->has('description')
+            ? $request->string('description')
+            : null;
 
         try {
             $listing = $this->updateListingUseCase->handle($uuid, $title, $description);

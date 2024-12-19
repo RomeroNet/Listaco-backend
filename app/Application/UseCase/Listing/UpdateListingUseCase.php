@@ -16,7 +16,7 @@ class UpdateListingUseCase
     /**
      * @throws ListingNotFoundException
      */
-    public function handle(string $uuid, ?string $title, ?string $description): Listing
+    public function handle(string $uuid, string $title, ?string $description): Listing
     {
         return $this->listingRepository->update($uuid, $title, $description);
     }
