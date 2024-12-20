@@ -3,128 +3,221 @@
 use App\Application\UseCase\Listing\DeleteListingUseCase;
 use App\Application\UseCase\Listing\GetListingByUuidUseCase;
 use App\Application\UseCase\Listing\UpdateListingUseCase;
+use App\Domain\Listing\Listing;
+use App\Domain\Listing\ListingNotFoundException;
+use App\Infrastructure\Database\Listing\EloquentListingRepository;
+use App\Infrastructure\Database\Listing\ListingModel;
 use App\Infrastructure\Http\Controllers\Listing\Uuid\ListingByUuidController;
-use App\Infrastructure\Http\Requests\Listing\DeleteListingRequest;
-use App\Infrastructure\Http\Requests\Listing\GetListingRequest;
-use App\Infrastructure\Http\Requests\Listing\UpdateListingRequest;
 use Faker\Factory;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 covers(
-    ListingByUuidController::class
+    ListingByUuidController::class,
+    GetListingByUuidUseCase::class,
+    DeleteListingUseCase::class,
+    UpdateListingUseCase::class,
+    EloquentListingRepository::class,
+    Listing::class,
+    ListingNotFoundException::class,
 );
 
-it('should handle a server error when fetching a list', function () {
+it('should fetch a list', function (
+    bool $listExists,
+    int $expectedStatus
+) {
     $faker = Factory::create();
 
-    $responseFactory = Mockery::mock(ResponseFactory::class);
-    $getListingByUuidUseCase = Mockery::mock(GetListingByUuidUseCase::class);
-    $request = Mockery::mock(GetListingRequest::class);
-    $response = Mockery::mock(JsonResponse::class);
+    $uuid = $faker->uuid;
+    $title = $faker->sentence;
+    $description = $faker->paragraph;
 
-    $request
-        ->shouldReceive('string')
-        ->with('uuid')
-        ->andReturn($faker->uuid);
+    // TODO: Use factories
 
-    $getListingByUuidUseCase
-        ->shouldReceive('handle')
-        ->andThrow(new Exception());
+    if ($listExists) {
+        $model = new ListingModel([
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ]);
 
-    $responseFactory
-        ->shouldReceive('json')
-        ->with(['message' => 'Server Error'], 500)
-        ->andReturn($response);
+        $model->save();
 
-    $controller = new ListingByUuidController(
-        $responseFactory,
-        $getListingByUuidUseCase,
-        Mockery::mock(DeleteListingUseCase::class),
-        Mockery::mock(UpdateListingUseCase::class)
-    );
+        $expectedResponse = [
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ];
+    }
 
-    $result = $controller->get($request);
+    if (! $listExists) {
+        $expectedResponse = [
+            'message' => 'ListingModel with ID ' . $uuid . ' not found.'
+        ];
+    }
 
-    expect($result)->toBe($response);
-});
+    if ($expectedStatus === Response::HTTP_INTERNAL_SERVER_ERROR) {
+        forceDatabaseError();
 
-it('should handle a server error when deleting a list', function () {
+        $expectedResponse = ['message' => 'Server Error'];
+    }
+
+    $response = $this->getJson("/api/listing/$uuid");
+
+    $response->assertStatus($expectedStatus);
+    $response->assertJson($expectedResponse);
+})->with([
+    'when the list exists' => [
+        'listExists' => true,
+        'expectedStatus' => Response::HTTP_OK
+    ],
+    'when the list does not exist' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_NOT_FOUND
+    ],
+    'when the endpoint throws a server error' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_INTERNAL_SERVER_ERROR
+    ]
+]);
+
+it('should update a list', function (
+    bool $listExists,
+    bool $hasDescription,
+    int $expectedStatus
+) {
     $faker = Factory::create();
 
-    $responseFactory = Mockery::mock(ResponseFactory::class);
-    $deleteListingUseCase = Mockery::mock(DeleteListingUseCase::class);
-    $request = Mockery::mock(DeleteListingRequest::class);
-    $response = Mockery::mock(JsonResponse::class);
+    $uuid = $faker->uuid;
+    $title = $faker->sentence;
+    $description = $faker->paragraph;
+    $newTitle = $faker->sentence;
+    $newDescription = $hasDescription ? $faker->paragraph : null;
 
-    $request
-        ->shouldReceive('string')
-        ->with('uuid')
-        ->andReturn($faker->uuid);
+    if ($listExists) {
+        $model = new ListingModel([
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ]);
+        $model->save();
+    }
 
-    $deleteListingUseCase
-        ->shouldReceive('handle')
-        ->andThrow(new Exception());
+    $request = [
+        'title' => $newTitle,
+    ];
 
-    $responseFactory
-        ->shouldReceive('json')
-        ->with(['message' => 'Server Error'], 500)
-        ->andReturn($response);
+    if ($hasDescription) {
+        $request['description'] = $newDescription;
+    }
 
-    $controller = new ListingByUuidController(
-        $responseFactory,
-        Mockery::mock(GetListingByUuidUseCase::class),
-        $deleteListingUseCase,
-        Mockery::mock(UpdateListingUseCase::class)
-    );
+    if ($listExists) {
+        $expectedResponse = [
+            'message' => 'Updated',
+            'id' => $uuid
+        ];
+    } else {
+        $expectedResponse = [
+            'message' => 'ListingModel with ID ' . $uuid . ' not found.'
+        ];
+    }
 
-    $result = $controller->delete($request);
+    if ($expectedStatus === Response::HTTP_INTERNAL_SERVER_ERROR) {
+        forceDatabaseError();
+        $expectedResponse = ['message' => 'Server Error'];
+    }
 
-    expect($result)->toBe($response);
-});
+    $response = $this->patchJson("/api/listing/$uuid", $request);
 
-it('should handle a server error when updating a list', function () {
+    $response->assertStatus($expectedStatus);
+    $response->assertJson($expectedResponse);
+
+    if (! $listExists) {
+        return;
+    }
+
+    /** @var ListingModel $updatedModel */
+    $updatedModel = ListingModel::find($uuid);
+
+    expect($updatedModel->title)->toBe($newTitle)
+        ->and($updatedModel->description)->toBe($newDescription);
+})->with([
+    'when the list exists and the description is updated to a text' => [
+        'listExists' => true,
+        'hasDescription' => true,
+        'expectedStatus' => Response::HTTP_OK,
+    ],
+    'when the list exists and the description is updated to null' => [
+        'listExists' => true,
+        'hasDescription' => false,
+        'expectedStatus' => Response::HTTP_OK,
+    ],
+    'when the list does not exist' => [
+        'listExists' => false,
+        'hasDescription' => false,
+        'expectedStatus' => Response::HTTP_NOT_FOUND,
+    ],
+    'when the endpoint throws a server error' => [
+        'listExists' => false,
+        'hasDescription' => false,
+        'expectedStatus' => Response::HTTP_INTERNAL_SERVER_ERROR,
+    ]
+]);
+
+it('should delete a list', function (
+    bool $listExists,
+    int $expectedStatus
+) {
     $faker = Factory::create();
 
-    $responseFactory = Mockery::mock(ResponseFactory::class);
-    $updateListingUseCase = Mockery::mock(UpdateListingUseCase::class);
-    $request = Mockery::mock(UpdateListingRequest::class);
-    $response = Mockery::mock(JsonResponse::class);
+    $uuid = $faker->uuid;
+    $title = $faker->sentence;
+    $description = $faker->paragraph;
 
-    $request
-        ->shouldReceive('string')
-        ->with('uuid')
-        ->andReturn($faker->uuid);
-    $request
-        ->shouldReceive('string')
-        ->with('title')
-        ->andReturn($faker->sentence);
-    $request
-        ->shouldReceive('has')
-        ->with('description')
-        ->andReturn(true);
-    $request
-        ->shouldReceive('string')
-        ->with('description')
-        ->andReturn($faker->paragraph);
+    if ($listExists) {
+        $model = new ListingModel([
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ]);
+        $model->save();
 
-    $updateListingUseCase
-        ->shouldReceive('handle')
-        ->andThrow(new Exception());
+        $expectedResponse = [
+            'message' => 'Deleted'
+        ];
+    } else {
+        $expectedResponse = [
+            'message' => 'ListingModel with ID ' . $uuid . ' not found.'
+        ];
+    }
 
-    $responseFactory
-        ->shouldReceive('json')
-        ->with(['message' => 'Server Error'], 500)
-        ->andReturn($response);
+    if ($expectedStatus === Response::HTTP_INTERNAL_SERVER_ERROR) {
+        forceDatabaseError();
+        $expectedResponse = ['message' => 'Server Error'];
+    }
 
-    $controller = new ListingByUuidController(
-        $responseFactory,
-        Mockery::mock(GetListingByUuidUseCase::class),
-        Mockery::mock(DeleteListingUseCase::class),
-        $updateListingUseCase
-    );
+    $response = $this->deleteJson("/api/listing/$uuid");
 
-    $result = $controller->patch($request);
+    $response->assertStatus($expectedStatus);
+    $response->assertJson($expectedResponse);
 
-    expect($result)->toBe($response);
-});
+    if (! $listExists) {
+        return;
+    }
+
+    $deletedModel = ListingModel::find($uuid);
+
+    expect($deletedModel)->toBeNull();
+})->with([
+    'when the list exists' => [
+        'listExists' => true,
+        'expectedStatus' => Response::HTTP_OK
+    ],
+    'when the list does not exist' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_NOT_FOUND
+    ],
+    'when the endpoint throws a server error' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_INTERNAL_SERVER_ERROR
+    ]
+]);
