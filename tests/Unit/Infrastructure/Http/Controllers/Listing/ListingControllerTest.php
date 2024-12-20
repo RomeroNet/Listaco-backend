@@ -1,13 +1,22 @@
 <?php
 
+use App\Application\UseCase\Listing\CreateListingUseCase;
+use App\Domain\Listing\Listing;
+use App\Infrastructure\Common\Uuid\RamseyUuidFactory;
+use App\Infrastructure\Database\Listing\EloquentListingRepository;
 use App\Infrastructure\Database\Listing\ListingModel;
 use App\Infrastructure\Http\Controllers\Listing\ListingController;
 use Faker\Factory;
 use Symfony\Component\HttpFoundation\Response;
 
 covers(
-    ListingController::class
+    ListingController::class,
+    CreateListingUseCase::class,
+    EloquentListingRepository::class,
+    Listing::class,
+    RamseyUuidFactory::class
 );
+
 
 it('should create a list', function (
     bool $hasDescription

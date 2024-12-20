@@ -21,7 +21,10 @@ covers(
     ListingNotFoundException::class,
 );
 
-it('should fetch a list', function () {
+it('should fetch a list', function (
+    bool $listExists,
+    int $expectedStatus
+) {
     $faker = Factory::create();
 
     $uuid = $faker->uuid;
@@ -29,36 +32,58 @@ it('should fetch a list', function () {
     $description = $faker->paragraph;
 
     // TODO: Use factories
-    $model = new ListingModel([
-        'id' => $uuid,
-        'title' => $title,
-        'description' => $description
-    ]);
-    $model->save();
+
+    if ($listExists) {
+        $model = new ListingModel([
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ]);
+
+        $model->save();
+
+        $expectedResponse = [
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ];
+    }
+
+    if (! $listExists) {
+        $expectedResponse = [
+            'message' => 'ListingModel with ID ' . $uuid . ' not found.'
+        ];
+    }
+
+    if ($expectedStatus === Response::HTTP_INTERNAL_SERVER_ERROR) {
+        forceDatabaseError();
+
+        $expectedResponse = ['message' => 'Server Error'];
+    }
 
     $response = $this->getJson("/api/listing/$uuid");
 
-    $response->assertStatus(Response::HTTP_OK);
-    $response->assertJson([
-        'id' => $uuid,
-        'title' => $title,
-        'description' => $description
-    ]);
-});
-
-it('should catch a server error when fetching a list', function () {
-    $faker = Factory::create();
-
-    forceDatabaseError();
-
-    $response = $this->getJson("/api/listing/{$faker->uuid}");
-
-    $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-    $response->assertJson(['message' => 'Server Error']);
-});
+    $response->assertStatus($expectedStatus);
+    $response->assertJson($expectedResponse);
+})->with([
+    'when the list exists' => [
+        'listExists' => true,
+        'expectedStatus' => Response::HTTP_OK
+    ],
+    'when the list does not exist' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_NOT_FOUND
+    ],
+    'when the endpoint throws a server error' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_INTERNAL_SERVER_ERROR
+    ]
+]);
 
 it('should update a list', function (
-    bool $hasDescription
+    bool $listExists,
+    bool $hasDescription,
+    int $expectedStatus
 ) {
     $faker = Factory::create();
 
@@ -68,13 +93,14 @@ it('should update a list', function (
     $newTitle = $faker->sentence;
     $newDescription = $hasDescription ? $faker->paragraph : null;
 
-    $model = new ListingModel([
-        'id' => $uuid,
-        'title' => $title,
-        'description' => $description
-    ]);
-
-    $model->save();
+    if ($listExists) {
+        $model = new ListingModel([
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ]);
+        $model->save();
+    }
 
     $request = [
         'title' => $newTitle,
@@ -84,13 +110,30 @@ it('should update a list', function (
         $request['description'] = $newDescription;
     }
 
+    if ($listExists) {
+        $expectedResponse = [
+            'message' => 'Updated',
+            'id' => $uuid
+        ];
+    } else {
+        $expectedResponse = [
+            'message' => 'ListingModel with ID ' . $uuid . ' not found.'
+        ];
+    }
+
+    if ($expectedStatus === Response::HTTP_INTERNAL_SERVER_ERROR) {
+        forceDatabaseError();
+        $expectedResponse = ['message' => 'Server Error'];
+    }
+
     $response = $this->patchJson("/api/listing/$uuid", $request);
 
-    $response->assertStatus(Response::HTTP_OK);
-    $response->assertJson([
-        'message' => 'Updated',
-        'id' => $uuid,
-    ]);
+    $response->assertStatus($expectedStatus);
+    $response->assertJson($expectedResponse);
+
+    if (! $listExists) {
+        return;
+    }
 
     /** @var ListingModel $updatedModel */
     $updatedModel = ListingModel::find($uuid);
@@ -98,98 +141,83 @@ it('should update a list', function (
     expect($updatedModel->title)->toBe($newTitle)
         ->and($updatedModel->description)->toBe($newDescription);
 })->with([
-    'when the list has a description' => [
-        'hasDescription' => true
+    'when the list exists and the description is updated to a text' => [
+        'listExists' => true,
+        'hasDescription' => true,
+        'expectedStatus' => Response::HTTP_OK,
     ],
-    'when the list does not have a description' => [
-        'hasDescription' => false
+    'when the list exists and the description is updated to null' => [
+        'listExists' => true,
+        'hasDescription' => false,
+        'expectedStatus' => Response::HTTP_OK,
+    ],
+    'when the list does not exist' => [
+        'listExists' => false,
+        'hasDescription' => false,
+        'expectedStatus' => Response::HTTP_NOT_FOUND,
+    ],
+    'when the endpoint throws a server error' => [
+        'listExists' => false,
+        'hasDescription' => false,
+        'expectedStatus' => Response::HTTP_INTERNAL_SERVER_ERROR,
     ]
 ]);
 
-it('should catch a server error when updating a list', function () {
-    $faker = Factory::create();
-
-    forceDatabaseError();
-
-    $response = $this->patchJson("/api/listing/{$faker->uuid}", [
-        'title' => $faker->sentence,
-        'description' => $faker->paragraph
-    ]);
-
-    $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-    $response->assertJson(['message' => 'Server Error']);
-});
-
-it('should delete a list', function () {
+it('should delete a list', function (
+    bool $listExists,
+    int $expectedStatus
+) {
     $faker = Factory::create();
 
     $uuid = $faker->uuid;
     $title = $faker->sentence;
     $description = $faker->paragraph;
 
-    $model = new ListingModel([
-        'id' => $uuid,
-        'title' => $title,
-        'description' => $description
-    ]);
-    $model->save();
+    if ($listExists) {
+        $model = new ListingModel([
+            'id' => $uuid,
+            'title' => $title,
+            'description' => $description
+        ]);
+        $model->save();
+
+        $expectedResponse = [
+            'message' => 'Deleted'
+        ];
+    } else {
+        $expectedResponse = [
+            'message' => 'ListingModel with ID ' . $uuid . ' not found.'
+        ];
+    }
+
+    if ($expectedStatus === Response::HTTP_INTERNAL_SERVER_ERROR) {
+        forceDatabaseError();
+        $expectedResponse = ['message' => 'Server Error'];
+    }
 
     $response = $this->deleteJson("/api/listing/$uuid");
 
-    $response->assertStatus(Response::HTTP_OK);
-    $response->assertJson(['message' => 'Deleted']);
+    $response->assertStatus($expectedStatus);
+    $response->assertJson($expectedResponse);
+
+    if (! $listExists) {
+        return;
+    }
 
     $deletedModel = ListingModel::find($uuid);
 
     expect($deletedModel)->toBeNull();
-});
-
-it('should catch a server error when deleting a list', function () {
-    $faker = Factory::create();
-
-    forceDatabaseError();
-
-    $response = $this->deleteJson("/api/listing/{$faker->uuid}");
-
-    $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-    $response->assertJson(['message' => 'Server Error']);
-});
-
-it('should return a not found response when fetching', function () {
-    $faker = Factory::create();
-
-    $uuid = $faker->uuid;
-    $message = sprintf('ListingModel with ID %s not found.', $uuid);
-
-    $response = $this->getJson("/api/listing/$uuid");
-
-    $response->assertStatus(Response::HTTP_NOT_FOUND);
-    $response->assertJson(['message' => $message]);
-});
-
-it('should return a not found response when deleting', function () {
-    $faker = Factory::create();
-
-    $uuid = $faker->uuid;
-    $message = sprintf('ListingModel with ID %s not found.', $uuid);
-
-    $response = $this->deleteJson("/api/listing/$uuid");
-
-    $response->assertStatus(Response::HTTP_NOT_FOUND);
-    $response->assertJson(['message' => $message]);
-});
-
-it('should return a not found response when updating', function () {
-    $faker = Factory::create();
-
-    $uuid = $faker->uuid;
-    $message = sprintf('ListingModel with ID %s not found.', $uuid);
-
-    $response = $this->patchJson("/api/listing/$uuid", [
-        'title' => $faker->sentence,
-        'description' => $faker->paragraph
-    ]);
-
-    $response->assertStatus(Response::HTTP_NOT_FOUND);
-    $response->assertJson(['message' => $message]);
-});
+})->with([
+    'when the list exists' => [
+        'listExists' => true,
+        'expectedStatus' => Response::HTTP_OK
+    ],
+    'when the list does not exist' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_NOT_FOUND
+    ],
+    'when the endpoint throws a server error' => [
+        'listExists' => false,
+        'expectedStatus' => Response::HTTP_INTERNAL_SERVER_ERROR
+    ]
+]);
