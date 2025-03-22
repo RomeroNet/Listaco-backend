@@ -5,7 +5,7 @@
     "require": {
         "php": "^8.4",
         "guzzlehttp/guzzle": "^7",
-        "laravel/framework": "^11"
+        "laravel/framework": "^12"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3",
