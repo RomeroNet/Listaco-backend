@@ -2,7 +2,6 @@
 
 namespace App\Infrastructure\Database\Item;
 
-use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -25,7 +24,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|ItemModel whereName($value)
  * @method static Builder<static>|ItemModel whereUpdatedAt($value)
  *
- * @mixin Eloquent
  * @mixin Builder<self>
  *
  * @method array{

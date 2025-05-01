@@ -14,7 +14,7 @@ mysql:
     requests:
       storage: 500Mi
   container:
-    image: mysql:9.1.0
+    image: mysql:9.3.0
     port: 3306
   secret:
       name: mysql-credentials

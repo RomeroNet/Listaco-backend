@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Config;
+
 uses(
     Tests\TestCase::class,
      Illuminate\Foundation\Testing\RefreshDatabase::class,
@@ -44,7 +46,9 @@ expect()->extend('toBeOne', function () {
 
 function forceDatabaseError(): void
 {
-    DB::disconnect('mysql');
-    Config::set('database.connections.mysql.username', 'fake');
-    DB::reconnect('mysql');
+    Config::set('database.default', 'mysql-fake');
 }
+
+pest()->afterEach(function () {
+    Config::set('database.default', 'mysql');
+});
