@@ -1,14 +1,13 @@
 {
-    "name": "romeronet/laravel-boilerplate",
+    "name": "romeronet/listaco-backend",
     "type": "project",
-    "description": "RomeroNet Laravel boilerplate.",
+    "description": "Backend for a shopping/todo/anything list.",
     "require": {
         "php": "^8.4",
         "guzzlehttp/guzzle": "^7",
         "laravel/framework": "^12"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^3",
         "fakerphp/faker": "^1",
         "larastan/larastan": "^3",
         "laravel/pint": "^1",

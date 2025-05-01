@@ -2,7 +2,6 @@
 
 namespace App\Infrastructure\Database\Listing;
 
-use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -23,7 +22,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|ListingModel whereTitle($value)
  * @method static Builder<static>|ListingModel whereUpdatedAt($value)
  *
- * @mixin Eloquent
  * @mixin Builder<self>
  */
 class ListingModel extends Model
