@@ -1,6 +1,6 @@
 <?php
 
-use App\Infrastructure\Http\Controllers\Index;
+use App\Framework\Infrastructure\Http\Controller\Index;
 use function Pest\Laravel\getJson;
 
 covers(Index::class);

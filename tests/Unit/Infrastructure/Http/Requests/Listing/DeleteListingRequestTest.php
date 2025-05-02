@@ -1,6 +1,6 @@
 <?php
 
-use App\Infrastructure\Http\Requests\Listing\DeleteListingRequest;
+use App\Listing\Infrastructure\Http\Request\DeleteListingRequest;
 use Faker\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Validation\ValidationException;

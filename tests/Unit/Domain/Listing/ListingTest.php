@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\Listing\Listing;
+use App\Listing\Domain\Listing;
 
 covers(
     Listing::class

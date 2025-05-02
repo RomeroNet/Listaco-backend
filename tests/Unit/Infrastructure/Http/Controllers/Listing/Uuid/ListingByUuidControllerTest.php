@@ -1,13 +1,13 @@
 <?php
 
-use App\Application\UseCase\Listing\DeleteListingUseCase;
-use App\Application\UseCase\Listing\GetListingByUuidUseCase;
-use App\Application\UseCase\Listing\UpdateListingUseCase;
-use App\Domain\Listing\Listing;
-use App\Domain\Listing\ListingNotFoundException;
-use App\Infrastructure\Database\Listing\EloquentListingRepository;
-use App\Infrastructure\Database\Listing\ListingModel;
-use App\Infrastructure\Http\Controllers\Listing\Uuid\ListingByUuidController;
+use App\Listing\Application\UseCase\DeleteListingUseCase;
+use App\Listing\Application\UseCase\GetListingByUuidUseCase;
+use App\Listing\Application\UseCase\UpdateListingUseCase;
+use App\Listing\Domain\Listing;
+use App\Listing\Domain\ListingNotFoundException;
+use App\Listing\Infrastructure\Database\Model\ListingModel;
+use App\Listing\Infrastructure\Database\Repository\EloquentListingRepository;
+use App\Listing\Infrastructure\Http\Controller\Uuid\ListingByUuidController;
 use Faker\Factory;
 use Symfony\Component\HttpFoundation\Response;
 

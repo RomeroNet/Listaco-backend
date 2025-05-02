@@ -1,11 +1,11 @@
 <?php
 
-use App\Application\UseCase\Listing\CreateListingUseCase;
-use App\Domain\Listing\Listing;
-use App\Infrastructure\Common\Uuid\RamseyUuidFactory;
-use App\Infrastructure\Database\Listing\EloquentListingRepository;
-use App\Infrastructure\Database\Listing\ListingModel;
-use App\Infrastructure\Http\Controllers\Listing\ListingController;
+use App\Common\Uuid\Infrastructure\Factory\RamseyUuidFactory;
+use App\Listing\Application\UseCase\CreateListingUseCase;
+use App\Listing\Domain\Listing;
+use App\Listing\Infrastructure\Database\Model\ListingModel;
+use App\Listing\Infrastructure\Database\Repository\EloquentListingRepository;
+use App\Listing\Infrastructure\Http\Controller\ListingController;
 use Faker\Factory;
 use Symfony\Component\HttpFoundation\Response;
 

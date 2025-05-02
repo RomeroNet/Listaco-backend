@@ -1,6 +1,6 @@
 <?php
 
-use App\Infrastructure\Http\Requests\Listing\CreateListingRequest;
+use App\Listing\Infrastructure\Http\Request\CreateListingRequest;
 use Faker\Factory;
 use Illuminate\Validation\ValidationException;
 

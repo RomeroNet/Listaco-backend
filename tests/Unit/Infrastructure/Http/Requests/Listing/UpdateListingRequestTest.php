@@ -1,6 +1,6 @@
 <?php
 
-use App\Infrastructure\Http\Requests\Listing\UpdateListingRequest;
+use App\Listing\Infrastructure\Http\Request\UpdateListingRequest;
 use Faker\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Validation\ValidationException;

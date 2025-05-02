@@ -1,7 +1,7 @@
 <?php
 
-use App\Application\UseCase\Listing\DeleteListingUseCase;
-use App\Domain\Listing\ListingRepositoryInterface;
+use App\Listing\Application\UseCase\DeleteListingUseCase;
+use App\Listing\Domain\ListingRepositoryInterface;
 
 covers(
     DeleteListingUseCase::class
