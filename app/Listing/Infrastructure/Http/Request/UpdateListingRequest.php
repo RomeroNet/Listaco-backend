@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Listing\Infrastructure\Http\Request;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateListingRequest extends FormRequest
+{
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'uuid' => $this->route('uuid'),
+        ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function rules(): array
+    {
+        return [
+            'uuid' => 'required|uuid',
+            'title' => 'required|string',
+            'description' => 'string|nullable',
+        ];
+    }
+
+    public function authorize(): bool
+    {
+        return true;
+    }
+}

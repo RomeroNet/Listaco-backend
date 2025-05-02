@@ -11,10 +11,12 @@
 |
 */
 
+use Illuminate\Support\Facades\Config;
+
 uses(
     Tests\TestCase::class,
-    // Illuminate\Foundation\Testing\RefreshDatabase::class,
-)->in('Feature');
+     Illuminate\Foundation\Testing\RefreshDatabase::class,
+)->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +44,11 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function forceDatabaseError(): void
 {
-    // ..
+    Config::set('database.default', 'mysql-fake');
 }
+
+pest()->afterEach(function () {
+    Config::set('database.default', 'mysql');
+});

@@ -1,8 +1,8 @@
 <?php
 
-use App\Application\UseCase\Listing\GetListingByUuidUseCase;
-use App\Domain\Listing\Listing;
-use App\Domain\Listing\ListingRepositoryInterface;
+use App\Listing\Application\UseCase\GetListingByUuidUseCase;
+use App\Listing\Domain\Listing;
+use App\Listing\Domain\ListingRepositoryInterface;
 
 covers(
     GetListingByUuidUseCase::class

@@ -1,9 +1,9 @@
 <?php
 
-use App\Application\UseCase\Listing\CreateListingUseCase;
-use App\Domain\Common\Uuid\UuidFactoryInterface;
-use App\Domain\Listing\Listing;
-use App\Domain\Listing\ListingRepositoryInterface;
+use App\Common\Uuid\Domain\UuidFactoryInterface;
+use App\Listing\Application\UseCase\CreateListingUseCase;
+use App\Listing\Domain\Listing;
+use App\Listing\Domain\ListingRepositoryInterface;
 use Mockery\Matcher\IsEqual;
 
 covers(

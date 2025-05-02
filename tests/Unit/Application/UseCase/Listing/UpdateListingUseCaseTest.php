@@ -1,8 +1,8 @@
 <?php
 
-use App\Application\UseCase\Listing\UpdateListingUseCase;
-use App\Domain\Listing\Listing;
-use App\Domain\Listing\ListingRepositoryInterface;
+use App\Listing\Application\UseCase\UpdateListingUseCase;
+use App\Listing\Domain\Listing;
+use App\Listing\Domain\ListingRepositoryInterface;
 
 covers(
     UpdateListingUseCase::class,

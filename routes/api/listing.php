@@ -1,7 +1,7 @@
 <?php
 
-use App\Infrastructure\Http\Controllers\Listing\ListingController;
-use App\Infrastructure\Http\Controllers\Listing\Uuid\ListingByUuidController;
+use App\Listing\Infrastructure\Http\Controller\ListingController;
+use App\Listing\Infrastructure\Http\Controller\Uuid\ListingByUuidController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/', [ListingController::class, 'post']);
