@@ -1,5 +1,5 @@
 <?php
 
-use App\Infrastructure\Http\Controllers\Item\ItemController;
+use App\Item\Infrastructure\Http\Controllers\ItemController;
 
 Route::post('/', [ItemController::class, 'post']);

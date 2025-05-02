@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Application\UseCase\Item;
+namespace App\Item\Application\UseCase;
 
-use App\Domain\Common\Uuid\UuidFactoryInterface;
-use App\Domain\Item\Item;
-use App\Domain\Item\ItemRepositoryInterface;
+
+use App\Common\Uuid\Domain\UuidFactoryInterface;
+use App\Item\Domain\Item;
+use App\Item\Domain\ItemRepositoryInterface;
 
 class CreateItemUseCase
 {

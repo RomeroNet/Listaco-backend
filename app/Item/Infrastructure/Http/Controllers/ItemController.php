@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Infrastructure\Http\Controllers\Item;
+namespace App\Item\Infrastructure\Http\Controllers;
 
-use App\Application\UseCase\Item\CreateItemUseCase;
-use App\Infrastructure\Http\Requests\Item\CreateItemRequest;
+use App\Item\Application\UseCase\CreateItemUseCase;
+use App\Item\Infrastructure\Http\Requests\CreateItemRequest;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
